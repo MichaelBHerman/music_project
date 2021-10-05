@@ -11,9 +11,9 @@ from rest_framework import status
 # Create your views here.
 class SongList(APIView):
 
-    def get(self, request):
+    def get(self,request):
         song = Song.objects.all()
-        serializer = SongSerializer(song, many=True)
+        serializer =  SongSerializer(song,many=True)
         return Response(serializer.data)
 
     def post(self, request):
@@ -50,4 +50,13 @@ class SongDetails(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)  
 
     
-   
+    
+    def patch(self, request, pk):
+        
+        song = self.get_object(pk)
+        song.likes += 1
+        serializer = SongSerializer(song, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
